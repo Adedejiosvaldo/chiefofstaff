@@ -38,6 +38,9 @@ echo "0 12 * * 1-5 $CRON_DIR/opportunity_aggregator.sh >> $HOME/.hermes/cron.log
 # Weekly routine self-training analysis at 9:00 PM on Sunday
 echo "0 21 * * 0 $CRON_DIR/weekly_routine_analysis.sh >> $HOME/.hermes/cron.log 2>&1" >> "$TEMP_CRON"
 
+# Proactive accountability nudge coach daily at 5:00 PM
+echo "0 17 * * * $CRON_DIR/nudge_coach.sh >> $HOME/.hermes/cron.log 2>&1" >> "$TEMP_CRON"
+
 # Install the new crontab
 crontab "$TEMP_CRON"
 rm "$TEMP_CRON"
