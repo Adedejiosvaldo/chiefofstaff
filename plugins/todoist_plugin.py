@@ -104,13 +104,13 @@ def complete_task(task_id: str) -> str:
         return f"Error completing Todoist task: {str(e)}"
 
 def get_mock_tasks() -> str:
-    """Generates a clean mock list of accountability tasks for Nigeran Developer profile."""
+    """Generates a clean mock list of accountability tasks for Backend/AI developer profile."""
     tasks = [
         "📋 **[MOCK] Todoist Accountability Tasks**:",
-        "1. **[mock-task-101]** Write weekly monday blog post on OCR Fintech applications",
+        "1. **[mock-task-101]** Write weekly Monday blog post on Distributed System Concurrency Pitfalls",
         "2. **[mock-task-102]** Perform 30 minutes of deep LinkedIn developer networking",
         "3. **[mock-task-103]** Optimize composite score trust check in zgic-staffclockin enrollment",
-        "4. **[mock-task-104]** Sync weekly investing research portfolio (fintech/banks)",
+        "4. **[mock-task-104]** Research advanced vector indexing strategies for massive RAG databases",
         "\nℹ️ *Todoist API token missing. To connect your actual task boards, add TODOIST_API_TOKEN to ~/.hermes/.env*"
     ]
     return "\n".join(tasks)

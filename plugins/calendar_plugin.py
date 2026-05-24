@@ -157,8 +157,8 @@ def get_mock_schedule(date_obj: datetime) -> str:
     if day_name in ['Saturday', 'Sunday']:
         schedule = [
             f"📅 **[MOCK] Weekend Schedule for {date_obj.strftime('%A, %b %d, %Y')}**:",
-            "- **09:00 AM**: Sunday Crypto/Fintech Market Recap",
-            "- **11:00 AM**: Deep Reading: Zettelkasten & Investing Research Notes",
+            "- **09:00 AM**: Sunday Distributed Systems Study Session",
+            "- **11:00 AM**: Deep Reading: LLM Orchestration & RAG Research Notes",
             "- **04:00 PM**: Week Content Batching Strategy Session",
         ]
     else:
