@@ -1,0 +1,17 @@
+# Exclude local git tracking
+.git
+
+# Exclude python compiler caches
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Exclude local volume mounts and persistent database tables
+data/
+*.db
+
+# Exclude host environment secrets and credentials (mounted dynamically via volume)
+.env
+credentials.json
+token.json

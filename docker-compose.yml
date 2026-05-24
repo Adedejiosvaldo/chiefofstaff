@@ -1,0 +1,15 @@
+version: '3.8'
+
+services:
+  chief-of-staff:
+    build: .
+    container_name: chief-of-staff-agent
+    restart: unless-stopped
+    ports:
+      - "8642:8642"
+    volumes:
+      # Mounts your persistent local folder to /opt/data where SQLite, GCal credentials, and configs reside
+      - ./data:/opt/data
+    environment:
+      - TZ=Africa/Lagos # Set standard time sync for crons
+      - PAGER=cat

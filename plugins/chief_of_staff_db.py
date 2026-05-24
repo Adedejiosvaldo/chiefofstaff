@@ -3,7 +3,11 @@ import sqlite3
 import json
 from datetime import datetime
 
-DB_PATH = os.path.expanduser("~/.hermes/chief_of_staff.db")
+# Support both standard host installation (~/.hermes/) and official Docker volume mount (/opt/data/)
+if os.path.exists("/opt/data"):
+    DB_PATH = "/opt/data/chief_of_staff.db"
+else:
+    DB_PATH = os.path.expanduser("~/.hermes/chief_of_staff.db")
 
 def get_db_connection():
     """Returns a connection to the SQLite database, creating directories if needed."""
@@ -12,6 +16,14 @@ def get_db_connection():
         os.makedirs(db_dir, exist_ok=True)
     conn = sqlite3.connect(DB_PATH)
     conn.row_factory = sqlite3.Row
+    
+    # Enable WAL mode and set a busy timeout of 5 seconds to handle concurrent writes
+    try:
+        conn.execute("PRAGMA journal_mode = WAL;")
+        conn.execute("PRAGMA busy_timeout = 5000;")
+    except Exception as e:
+        print(f"Database performance PRAGMA warning: {e}")
+        
     return conn
 
 def init_db():
@@ -113,11 +125,14 @@ def log_telemetry(event_type: str, details: dict):
     conn.commit()
     conn.close()
 
-def get_recent_telemetry(limit: int = 100):
-    """Pulls recent telemetry logs for analysis."""
+def get_recent_telemetry(days: int = 14, limit: int = 100):
+    """Pulls recent telemetry logs for analysis within a rolling sliding window of days."""
     conn = get_db_connection()
     cursor = conn.cursor()
-    cursor.execute("SELECT * FROM telemetry ORDER BY created_at DESC LIMIT ?", (limit,))
+    cursor.execute(
+        "SELECT * FROM telemetry WHERE datetime(created_at) >= datetime('now', ?) ORDER BY created_at DESC LIMIT ?",
+        (f"-{days} days", limit)
+    )
     rows = cursor.fetchall()
     conn.close()
     return [dict(row) for row in rows]
