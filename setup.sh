@@ -15,6 +15,10 @@ else
     echo "Hermes Agent is already installed."
 fi
 
+# 1b. Install Python Dependencies
+echo "Installing custom plugin dependencies..."
+pip3 install -q requests google-api-python-client google-auth-httplib2 google-auth-oauthlib
+
 # 2. Setup Directory Structure
 echo "Setting up ~/.hermes directories..."
 HERMES_DIR="$HOME/.hermes"

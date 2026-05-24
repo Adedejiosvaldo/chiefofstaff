@@ -32,6 +32,12 @@ echo "0 17 * * 1-5 $CRON_DIR/linkedin_engagement.sh >> $HOME/.hermes/cron.log 2>
 # Weekly content batch at 6:00 PM on Sunday
 echo "0 18 * * 0 $CRON_DIR/weekly_content_batch.sh >> $HOME/.hermes/cron.log 2>&1" >> "$TEMP_CRON"
 
+# Opportunity Aggregator at 12:00 PM every weekday (Monday to Friday)
+echo "0 12 * * 1-5 $CRON_DIR/opportunity_aggregator.sh >> $HOME/.hermes/cron.log 2>&1" >> "$TEMP_CRON"
+
+# Weekly routine self-training analysis at 9:00 PM on Sunday
+echo "0 21 * * 0 $CRON_DIR/weekly_routine_analysis.sh >> $HOME/.hermes/cron.log 2>&1" >> "$TEMP_CRON"
+
 # Install the new crontab
 crontab "$TEMP_CRON"
 rm "$TEMP_CRON"
