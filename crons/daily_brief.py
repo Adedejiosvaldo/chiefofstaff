@@ -1,6 +1,6 @@
 import sys
 import os
-from datetime import datetime, timedelta
+from datetime import datetime
 
 # Append the plugins path so we can import our db and integrations
 sys.path.append(os.path.expanduser('~/.hermes/plugins'))
@@ -10,45 +10,48 @@ try:
     import chief_of_staff_db
     import todoist_plugin
     import calendar_plugin
+    import git_plugin
     IMPORTS_OK = True
 except ImportError as e:
     print(f"Import warning in development: {e}")
     IMPORTS_OK = False
 
-def run_nudge_coach():
+def run_daily_brief():
     if not IMPORTS_OK:
-        print("Cannot run nudge coach: Required plugins could not be imported.")
+        print("Cannot run daily brief: Required plugins could not be imported.")
         return
 
     print("Fetching active/overdue tasks from Todoist...")
     tasks_summary = todoist_plugin.fetch_todoist_tasks("today | overdue")
-    
-    # If the user has absolutely no active or overdue tasks, skip the nudge
-    if "No active or overdue tasks" in tasks_summary:
-        print("No outstanding tasks found. Skipping accountability nudge.")
-        return
 
-    print("Fetching tomorrow's schedule from Google Calendar...")
-    tomorrow = datetime.now() + timedelta(days=1)
-    tomorrow_str = tomorrow.strftime("%Y-%m-%d")
-    calendar_summary = calendar_plugin.fetch_events(tomorrow_str)
+    print("Fetching today's schedule from Google Calendar...")
+    calendar_summary = calendar_plugin.fetch_events()
 
-    # Build a highly custom prompt for the agent to render a premium WhatsApp accountability card
+    print("Fetching recent Git activity...")
+    git_summary = git_plugin.get_local_git_commits(since_hours=24)
+
+    print("Fetching unread global opportunities...")
+    unread_opps = chief_of_staff_db.get_unread_opportunities(limit=5)
+    opps_summary = "📁 **Global Opportunity Radar matches:**\n"
+    if unread_opps:
+        for idx, opp in enumerate(unread_opps, 1):
+            opps_summary += f"{idx}. **[{opp['type'].upper()}]** {opp['title']} - {opp['url']}\n"
+    else:
+        opps_summary += "- No new unread opportunities matching backend or AI found.\n"
+
+    # Build a highly custom prompt for the agent to render a premium WhatsApp Daily Briefing card
     prompt = (
-        "It is 5:00 PM Lagos time. Here is an active audit of my outstanding commitments:\n\n"
-        f"{tasks_summary}\n\n"
-        "Here is my calendar schedule for tomorrow:\n"
+        "Please generate my Daily Briefing card. Act as my Life Organizer and chief of staff.\n\n"
+        "Here is the raw data collected locally:\n\n"
         f"{calendar_summary}\n\n"
-        "Please send a proactive WhatsApp notification to the user's phone. Act as my assertive, "
-        "encouraging Accountability Coach and Chief of Staff. Note any outstanding tasks due today "
-        "and nudge me to complete them. Review my calendar for tomorrow and proactively identify "
-        "any free blocks of time where I can tackle these tasks. Suggest a specific free time block "
-        "and offer to schedule a deep-work sprint for it.\n\n"
-        "Present the nudge with clear formatting, using premium spacing and emojis. "
-        "At the end of your message, present exactly three clear, numbered choices I can reply with:\n"
-        "1. Book the suggested calendar block tomorrow for deep work.\n"
-        "2. Snooze this task to tomorrow morning.\n"
-        "3. Mark this task as completed now."
+        f"{tasks_summary}\n\n"
+        f"{git_summary}\n\n"
+        f"{opps_summary}\n\n"
+        "Please synthesize this into a premium, beautiful daily briefing. "
+        "Include a summary of today's schedule, highlight critical pending actions, "
+        "and pre-draft a highly punchy, scroll-stopping LinkedIn post based on my recent git activity "
+        "and backend/AI focus, strictly adhering to the Joseph Adewunmi Writing Style Guide.\n\n"
+        "Format the message with clean headers, premium spacing, and visual emojis."
     )
 
     # OpenRouter hybrid model routing configuration
@@ -79,20 +82,20 @@ def run_nudge_coach():
                     {"role": "user", "content": prompt}
                 ]
             }
-            response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload, timeout=30)
+            response = requests.post("https://openrouter.ai/api/v1/chat/completions", headers=headers, json=payload, timeout=35)
             response.raise_for_status()
             compiled_text = response.json()["choices"][0]["message"]["content"]
             prompt = f"[DELIVER DIRECTLY]: {compiled_text}"
-            print("Successfully pre-compiled accountability nudge with OpenRouter Flash!")
+            print("Successfully pre-compiled Daily Briefing with OpenRouter Flash!")
         except Exception as e:
             print(f"OpenRouter compilation warning: {e}. Falling back to raw prompt queueing.")
 
     # Queue the prompt in the notifications table
     notification_id = chief_of_staff_db.add_notification(prompt)
-    print(f"Accountability nudge successfully queued in SQLite! (Notification ID: {notification_id})")
+    print(f"Daily Briefing successfully queued in SQLite! (Notification ID: {notification_id})")
 
 if __name__ == "__main__":
     try:
-        run_nudge_coach()
+        run_daily_brief()
     except Exception as e:
-        print(f"Error executing accountability nudge coach: {e}")
+        print(f"Error executing daily brief: {e}")
