@@ -39,6 +39,13 @@ EOF
     echo "ℹ️ Created default /opt/data/config.yaml with WhatsApp platform and OpenRouter model enabled."
 fi
 
+# 2c. Automatically migrate any legacy models with dots (e.g. anthropic/claude-3.5-sonnet) in config.yaml to the hyphenated version
+if [ -f "/opt/data/config.yaml" ]; then
+    sed -i 's/anthropic\/claude-3\.5-sonnet/anthropic\/claude-3-5-sonnet/g' /opt/data/config.yaml
+    echo "ℹ️ Automatically migrated legacy config.yaml models to correct hyphenated format."
+fi
+
+
 
 # 3. Automatically register the crontab inside the container
 echo "Installing cron schedules..."
