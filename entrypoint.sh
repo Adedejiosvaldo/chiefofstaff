@@ -77,7 +77,10 @@ else
     echo "Located Hermes at: $HERMES_BIN"
 fi
 
-# 6. Exec into official gateway run in foreground to handle Docker lifecycle signals (SIGTERM)
+# 6. Allow running gateway as root to ensure perfect file-permission symmetry with background cron daemon
+export HERMES_ALLOW_ROOT_GATEWAY=1
+
+# 7. Exec into official gateway run in foreground to handle Docker lifecycle signals (SIGTERM)
 echo "=========================================================="
 echo "Starting Hermes Gateway..."
 echo "=========================================================="
