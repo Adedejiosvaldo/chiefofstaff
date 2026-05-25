@@ -19,6 +19,8 @@ RUN python3 -m pip install --no-cache-dir --break-system-packages \
     google-api-python-client \
     google-auth-httplib2 \
     google-auth-oauthlib
+# Pre-install WhatsApp bridge dependencies to prevent 60-second npm timeout crashes on boot
+RUN cd /opt/hermes/scripts/whatsapp-bridge && npm install
 
 # Pre-stage our custom Chief of Staff skill, plugin, and cron configurations in a safe backup directory
 COPY skills /opt/app/skills/
