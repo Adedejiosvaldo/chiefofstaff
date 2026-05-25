@@ -34,7 +34,7 @@ platforms:
 
 model:
   provider: openrouter
-  default: "anthropic/claude-3.5-sonnet"
+  default: "anthropic/claude-3-5-sonnet"
 EOF
     echo "ℹ️ Created default /opt/data/config.yaml with WhatsApp platform and OpenRouter model enabled."
 fi
