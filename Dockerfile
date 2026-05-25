@@ -6,14 +6,15 @@ WORKDIR /opt/data
 # Elevate privileges to install system packages
 USER root
 
-# Install system dependencies (cron, sqlite3)
+# Install system dependencies (cron, sqlite3, python3-pip)
 RUN apt-get update && apt-get install -y --no-install-recommends \
     cron \
     sqlite3 \
+    python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python requirements for GCal, Todoist, and scraper plugins
-RUN pip install --no-cache-dir \
+RUN python3 -m pip install --no-cache-dir --break-system-packages \
     requests \
     google-api-python-client \
     google-auth-httplib2 \
