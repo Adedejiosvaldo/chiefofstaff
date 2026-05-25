@@ -68,4 +68,4 @@ service cron start || /usr/sbin/cron
 echo "=========================================================="
 echo "Starting Hermes Gateway..."
 echo "=========================================================="
-exec hermes gateway run
+exec /opt/hermes/docker/main-wrapper.sh gateway run
