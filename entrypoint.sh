@@ -25,14 +25,18 @@ if [ ! -f "/opt/data/.env" ]; then
     echo "ℹ️ Created /opt/data/.env. Please configure your API tokens on the host."
 fi
 
-# 2b. Setup config.yaml inside mount if not already present to explicitly enable WhatsApp platform
+# 2b. Setup config.yaml inside mount if not already present to explicitly enable WhatsApp platform and configure default model
 if [ ! -f "/opt/data/config.yaml" ]; then
     cat << 'EOF' > /opt/data/config.yaml
 platforms:
   whatsapp:
     enabled: true
+
+model:
+  provider: openrouter
+  default: "anthropic/claude-3.5-sonnet"
 EOF
-    echo "ℹ️ Created default /opt/data/config.yaml with WhatsApp platform enabled."
+    echo "ℹ️ Created default /opt/data/config.yaml with WhatsApp platform and OpenRouter model enabled."
 fi
 
 
