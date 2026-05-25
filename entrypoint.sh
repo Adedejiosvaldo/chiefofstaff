@@ -91,9 +91,16 @@ fi
 # 6. Allow running gateway as root to ensure perfect file-permission symmetry with background cron daemon
 export HERMES_ALLOW_ROOT_GATEWAY=1
 
-# 7. Exec into official gateway run in foreground to handle Docker lifecycle signals (SIGTERM)
+# 7. Start the Hermes Gateway. If it exits (e.g. because it's not paired yet), keep the container alive so you can pair.
 echo "=========================================================="
 echo "Starting Hermes Gateway..."
 echo "=========================================================="
-exec "$HERMES_BIN" gateway run
+"$HERMES_BIN" gateway run || true
+
+echo "=========================================================="
+echo "⚠️ Gateway stopped or is waiting for WhatsApp pairing."
+echo "Keeping the container alive so you can run the pairing command:"
+echo "👉 docker exec -it chief-of-staff-agent /opt/hermes/.venv/bin/hermes whatsapp"
+echo "=========================================================="
+tail -f /dev/null
 
