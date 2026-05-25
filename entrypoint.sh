@@ -64,8 +64,22 @@ rm "$TEMP_CRON"
 echo "Launching cron background daemon..."
 service cron start || /usr/sbin/cron
 
-# 5. Exec into official gateway run in foreground to handle Docker lifecycle signals (SIGTERM)
+# 5. Locate the hermes executable dynamically
+echo "Locating Hermes executable..."
+if [ -f "/opt/hermes/.venv/bin/hermes" ]; then
+    HERMES_BIN="/opt/hermes/.venv/bin/hermes"
+    echo "Found Hermes in virtualenv: $HERMES_BIN"
+elif command -v hermes &> /dev/null; then
+    HERMES_BIN="hermes"
+    echo "Found Hermes in global PATH: $HERMES_BIN"
+else
+    HERMES_BIN=$(find /opt/ /usr/ -name hermes -type f -executable -print -quit 2>/dev/null || echo "hermes")
+    echo "Located Hermes at: $HERMES_BIN"
+fi
+
+# 6. Exec into official gateway run in foreground to handle Docker lifecycle signals (SIGTERM)
 echo "=========================================================="
 echo "Starting Hermes Gateway..."
 echo "=========================================================="
-exec /opt/hermes/docker/main-wrapper.sh gateway run
+exec "$HERMES_BIN" gateway run
+
