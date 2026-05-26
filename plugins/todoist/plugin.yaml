@@ -1,0 +1,3 @@
+name: todoist
+description: Manages Todoist tasks - fetch, create, and complete tasks via the Todoist REST API v2.
+version: 1.0.0

@@ -1,0 +1,3 @@
+name: git-activity
+description: Scans local git repositories and summarizes recent commit activity for status updates.
+version: 1.0.0

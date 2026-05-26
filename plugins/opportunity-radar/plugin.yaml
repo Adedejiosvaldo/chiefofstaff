@@ -1,0 +1,3 @@
+name: opportunity-radar
+description: Crawls job boards and Hacker News for remote dev jobs, scholarships, and opportunities. Stores results in SQLite.
+version: 1.0.0
