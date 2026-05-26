@@ -42,25 +42,46 @@ if [ ! -f "/opt/data/.env" ]; then
     echo "ℹ️ Created /opt/data/.env. Please configure your API tokens on the host."
 fi
 
-# 2b. Setup config.yaml inside mount if not already present to explicitly enable WhatsApp platform and configure default model
-if [ ! -f "/opt/data/config.yaml" ]; then
-    cat << 'EOF' > /opt/data/config.yaml
-platforms:
-  whatsapp:
-    enabled: true
+# 2b. Safely initialize and configure config.yaml using Hermes PyYAML to enable whatsapp and the 6 custom plugins
+echo "Configuring config.yaml and enabling custom plugins..."
+/opt/hermes/.venv/bin/python -c '
+import os, yaml
+path = "/opt/data/config.yaml"
+config = {}
+if os.path.exists(path):
+    try:
+        with open(path, "r") as f:
+            config = yaml.safe_load(f) or {}
+    except Exception as e:
+        print(f"  ⚠️ Warning: could not parse existing config.yaml: {e}")
 
-model:
-  provider: openrouter
-  default: "anthropic/claude-3-5-sonnet"
-EOF
-    echo "ℹ️ Created default /opt/data/config.yaml with WhatsApp platform and OpenRouter model enabled."
-fi
+# Platforms
+if "platforms" not in config: config["platforms"] = {}
+if "whatsapp" not in config["platforms"]: config["platforms"]["whatsapp"] = {}
+config["platforms"]["whatsapp"]["enabled"] = True
 
-# 2c. Automatically migrate any legacy models with dots (e.g. anthropic/claude-3.5-sonnet) in config.yaml to the hyphenated version
-if [ -f "/opt/data/config.yaml" ]; then
-    sed -i 's/anthropic\/claude-3\.5-sonnet/anthropic\/claude-3-5-sonnet/g' /opt/data/config.yaml
-    echo "ℹ️ Automatically migrated legacy config.yaml models to correct hyphenated format."
-fi
+# Model
+if "model" not in config:
+    config["model"] = {"provider": "openrouter", "default": "anthropic/claude-3-5-sonnet"}
+else:
+    # Migrate legacy model syntax if present
+    if config.get("model", {}).get("default") == "anthropic/claude-3.5-sonnet":
+        config["model"]["default"] = "anthropic/claude-3-5-sonnet"
+
+# Plugins
+if "plugins" not in config: config["plugins"] = {}
+if "enabled" not in config["plugins"] or not isinstance(config["plugins"]["enabled"], list):
+    config["plugins"]["enabled"] = []
+
+required = ["todoist", "buffer", "google-calendar", "git-activity", "opportunity-radar", "notification-bridge"]
+for p in required:
+    if p not in config["plugins"]["enabled"]:
+        config["plugins"]["enabled"].append(p)
+
+with open(path, "w") as f:
+    yaml.safe_dump(config, f, default_flow_style=False)
+print("  ✓ config.yaml configured. Enabled plugins: " + ", ".join(config["plugins"]["enabled"]))
+'
 
 
 
