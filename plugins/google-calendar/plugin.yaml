@@ -1,0 +1,3 @@
+name: google-calendar
+description: Fetches and creates Google Calendar events. Supports OAuth2 credential flow with graceful mock fallback.
+version: 1.0.0

@@ -12,8 +12,25 @@ mkdir -p /opt/data/crons
 
 echo "Syncing plugins, skills, and crons to persistent volume..."
 cp -r /opt/app/skills/* /opt/data/skills/ 2>/dev/null || true
-cp -r /opt/app/plugins/* /opt/data/plugins/ 2>/dev/null || true
 cp -r /opt/app/crons/* /opt/data/crons/ 2>/dev/null || true
+
+# Sync directory-based plugins (each is a folder with plugin.yaml + __init__.py)
+for plugin_dir in /opt/app/plugins/*/; do
+    if [ -f "${plugin_dir}plugin.yaml" ]; then
+        plugin_name=$(basename "$plugin_dir")
+        mkdir -p "/opt/data/plugins/${plugin_name}"
+        cp -r "${plugin_dir}"* "/opt/data/plugins/${plugin_name}/" 2>/dev/null || true
+        echo "  ✓ Synced plugin: ${plugin_name}"
+    fi
+done
+
+# Sync shared Python modules (e.g., chief_of_staff_db.py) that plugins import
+for shared_file in /opt/app/plugins/*.py; do
+    if [ -f "$shared_file" ]; then
+        cp "$shared_file" /opt/data/plugins/ 2>/dev/null || true
+        echo "  ✓ Synced shared module: $(basename $shared_file)"
+    fi
+done
 
 # 2. Setup .env environment file inside mount if not already present
 if [ ! -f "/opt/data/.env" ]; then
@@ -101,6 +118,9 @@ fi
 
 # 6. Allow running gateway as root to ensure perfect file-permission symmetry with background cron daemon
 export HERMES_ALLOW_ROOT_GATEWAY=1
+
+# 7. Enable directory-based plugin discovery from /opt/data/plugins/
+export HERMES_ENABLE_PROJECT_PLUGINS=true
 
 # 7. Start the Hermes Gateway. If it exits (e.g. because it's not paired yet), keep the container alive so you can pair.
 echo "=========================================================="

@@ -14,3 +14,4 @@ services:
       - TZ=Africa/Lagos # Set standard time sync for crons
       - PAGER=cat
       - HERMES_ALLOW_ROOT_GATEWAY=1
+      - HERMES_ENABLE_PROJECT_PLUGINS=true

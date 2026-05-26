@@ -1,0 +1,3 @@
+name: notification-bridge
+description: Checks the local SQLite queue for pending cron-triggered notifications and returns them for the agent to deliver.
+version: 1.0.0
