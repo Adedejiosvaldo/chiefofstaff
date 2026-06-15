@@ -109,7 +109,7 @@ def _fetch_events(date_str: str = None) -> str:
         return f"Error communicating with Google Calendar API: {str(e)}\n\n" + _get_mock_schedule(target_date)
 
 
-def _schedule_event(summary: str, start_time_str: str, duration_minutes: int = 60) -> str:
+def _schedule_event(summary: str = "", start_time_str: str = "", duration_minutes: int = 60) -> str:
     """
     Creates an event in Google Calendar.
 
@@ -121,8 +121,8 @@ def _schedule_event(summary: str, start_time_str: str, duration_minutes: int = 6
     try:
         start_time = datetime.fromisoformat(start_time_str)
         end_time = start_time + timedelta(minutes=duration_minutes)
-    except ValueError:
-        return f"Error: Start time '{start_time_str}' must be ISO format (YYYY-MM-DDTHH:MM:SS)."
+    except (ValueError, TypeError, Exception) as e:
+        return f"Error: Start time '{start_time_str}' must be ISO format (YYYY-MM-DDTHH:MM:SS). Details: {e}"
 
     service = _get_google_calendar_service()
     if not service:
@@ -217,8 +217,8 @@ def register(ctx):
             "required": ["summary", "start_time_str"]
         },
         handler=lambda args, **kwargs: _schedule_event(
-            args["summary"],
-            args["start_time_str"],
-            args.get("duration_minutes", 60)
+            summary=args.get("summary", ""),
+            start_time_str=args.get("start_time_str") or args.get("start_time", ""),
+            duration_minutes=args.get("duration_minutes", 60)
         )
     )

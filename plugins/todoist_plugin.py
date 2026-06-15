@@ -24,7 +24,7 @@ def fetch_todoist_tasks(filter_query: str = "today | overdue") -> str:
         # Graceful fallback: return mock tasks
         return get_mock_tasks()
 
-    url = "https://api.todoist.com/rest/v2/tasks"
+    url = "https://api.todoist.com/api/v1/tasks"
     params = {"filter": filter_query}
 
     try:
@@ -67,7 +67,7 @@ def create_task(content: str, due_string: str = None) -> str:
             f"ℹ️ *Note: TODOIST_API_TOKEN is missing. This mock task has been successfully logged.*"
         )
 
-    url = "https://api.todoist.com/rest/v2/tasks"
+    url = "https://api.todoist.com/api/v1/tasks"
     payload = {"content": content}
     if due_string:
         payload["due_string"] = due_string
@@ -94,7 +94,7 @@ def complete_task(task_id: str) -> str:
             f"- Marked task ID **'{task_id}'** as completed."
         )
 
-    url = f"https://api.todoist.com/rest/v2/tasks/{task_id}/close"
+    url = f"https://api.todoist.com/api/v1/tasks/{task_id}/close"
 
     try:
         response = requests.post(url, headers=headers)
