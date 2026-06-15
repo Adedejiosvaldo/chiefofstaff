@@ -88,7 +88,14 @@ with open(path, "w") as f:
 print("  ✓ config.yaml configured. Enabled plugins: " + ", ".join(config["plugins"]["enabled"]))
 '
 
-
+# 2c. Sync config, skills, plugins, and SOUL.md to the user's home directory (~/.hermes/) where Hermes expects them
+echo "Syncing configurations, skills, and plugins to ~/.hermes/..."
+mkdir -p ~/.hermes/skills ~/.hermes/plugins ~/.hermes/crons
+cp -r /opt/data/skills/* ~/.hermes/skills/ 2>/dev/null || true
+cp -r /opt/data/plugins/* ~/.hermes/plugins/ 2>/dev/null || true
+cp -r /opt/data/crons/* ~/.hermes/crons/ 2>/dev/null || true
+if [ -f "/opt/data/config.yaml" ]; then cp /opt/data/config.yaml ~/.hermes/config.yaml; fi
+if [ -f "/opt/data/SOUL.md" ]; then cp /opt/data/SOUL.md ~/.hermes/SOUL.md; fi
 
 # 3. Automatically register the crontab inside the container
 echo "Installing cron schedules..."
