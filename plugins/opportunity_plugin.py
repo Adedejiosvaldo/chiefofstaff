@@ -1,6 +1,7 @@
 import os
 import sys
 import urllib.request
+import urllib.parse
 import json
 import xml.etree.ElementTree as ET
 from datetime import datetime

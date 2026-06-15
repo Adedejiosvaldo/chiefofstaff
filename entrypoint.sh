@@ -83,6 +83,10 @@ for p in required:
 if "cron" not in config: config["cron"] = {}
 config["cron"]["wrap_response"] = False
 
+# Display (Disable tool progress notifications in messaging platform chats)
+if "display" not in config: config["display"] = {}
+config["display"]["tool_progress"] = "off"
+
 with open(path, "w") as f:
     yaml.safe_dump(config, f, default_flow_style=False)
 print("  ✓ config.yaml configured. Enabled plugins: " + ", ".join(config["plugins"]["enabled"]))
