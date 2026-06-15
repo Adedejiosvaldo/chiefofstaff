@@ -30,7 +30,12 @@ def fetch_todoist_tasks(filter_query: str = "today | overdue") -> str:
     try:
         response = requests.get(url, headers=headers, params=params)
         response.raise_for_status()
-        tasks = response.json()
+        data = response.json()
+        
+        if isinstance(data, dict):
+            tasks = data.get("tasks") or data.get("items") or data.get("results") or []
+        else:
+            tasks = data
 
         if not tasks:
             return "✅ **Todoist Board**: No active or overdue tasks scheduled! Excellent work."
@@ -75,7 +80,8 @@ def create_task(content: str, due_string: str = None) -> str:
     try:
         response = requests.post(url, headers=headers, json=payload)
         response.raise_for_status()
-        task = response.json()
+        data = response.json()
+        task = data.get("task") or data.get("item") or data if isinstance(data, dict) else {}
         return f"✅ **Todoist Task Created**!\n- **Content**: {task.get('content')}\n- **ID**: {task.get('id')}"
     except requests.exceptions.RequestException as e:
         return f"Error creating Todoist task: {str(e)}"

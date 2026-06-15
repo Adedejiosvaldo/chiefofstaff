@@ -334,8 +334,8 @@ def register(ctx):
             "required": ["habit_name", "outcome"]
         },
         handler=lambda args, **kwargs: _record_habit_resolution_tool(
-            habit_name=args["habit_name"],
-            outcome=args["outcome"],
+            habit_name=args.get("habit_name") or args.get("habit") or args.get("task_name") or args.get("task", ""),
+            outcome=args.get("outcome", ""),
             is_late=args.get("is_late", False),
             reason=args.get("reason")
         )
