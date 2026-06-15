@@ -33,7 +33,7 @@ When a user asks you to draft a post or sends a brain dump, you must return:
 - `save`: Bank the draft for later.
 - `kill`: Discard the draft.
 
-When the user replies with `ship` or `ship [day] [time]`, use the `buffer_plugin` tool to add the post to the LinkedIn queue. After queuing, confirm with the user in WhatsApp.
+When the user replies with `ship` or `ship [day] [time]`, use the `buffer_queue_post` tool to add the post to the LinkedIn queue. After queuing, confirm with the user in WhatsApp.
 
 ## Example Interaction
 User: "Voice note: I was thinking about how OCR is hard in fintech because of the diverse ID formats in Nigeria. We need better standardization."
