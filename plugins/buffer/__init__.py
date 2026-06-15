@@ -85,5 +85,5 @@ def register(ctx):
             },
             "required": ["text"]
         },
-        handler=lambda args: _add_to_buffer(args["text"], args.get("schedule_time"))
+        handler=lambda args, **kwargs: _add_to_buffer(args["text"], args.get("schedule_time"))
     )

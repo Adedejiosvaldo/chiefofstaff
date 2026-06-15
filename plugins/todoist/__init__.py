@@ -134,7 +134,7 @@ def register(ctx):
                 }
             }
         },
-        handler=lambda args: _fetch_todoist_tasks(args.get("filter_query", "today | overdue"))
+        handler=lambda args, **kwargs: _fetch_todoist_tasks(args.get("filter_query", "today | overdue"))
     )
     ctx.register_tool(
         name="create_todoist_task",
@@ -153,7 +153,7 @@ def register(ctx):
             },
             "required": ["content"]
         },
-        handler=lambda args: _create_task(args["content"], args.get("due_string"))
+        handler=lambda args, **kwargs: _create_task(args["content"], args.get("due_string"))
     )
     ctx.register_tool(
         name="complete_todoist_task",
@@ -168,5 +168,5 @@ def register(ctx):
             },
             "required": ["task_id"]
         },
-        handler=lambda args: _complete_task(args["task_id"])
+        handler=lambda args, **kwargs: _complete_task(args["task_id"])
     )

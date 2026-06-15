@@ -317,7 +317,7 @@ def register(ctx):
             "type": "object",
             "properties": {}
         },
-        handler=lambda args: _get_gamification_status_tool()
+        handler=lambda args, **kwargs: _get_gamification_status_tool()
     )
     
     ctx.register_tool(
@@ -333,7 +333,7 @@ def register(ctx):
             },
             "required": ["habit_name", "outcome"]
         },
-        handler=lambda args: _record_habit_resolution_tool(
+        handler=lambda args, **kwargs: _record_habit_resolution_tool(
             habit_name=args["habit_name"],
             outcome=args["outcome"],
             is_late=args.get("is_late", False),
@@ -348,7 +348,7 @@ def register(ctx):
             "type": "object",
             "properties": {}
         },
-        handler=lambda args: _get_daily_trivia_tool()
+        handler=lambda args, **kwargs: _get_daily_trivia_tool()
     )
     
     ctx.register_tool(
@@ -362,7 +362,7 @@ def register(ctx):
             },
             "required": ["question_id", "answer"]
         },
-        handler=lambda args: _submit_trivia_answer_tool(
+        handler=lambda args, **kwargs: _submit_trivia_answer_tool(
             question_id=args["question_id"],
             answer=args["answer"]
         )

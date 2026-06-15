@@ -167,7 +167,7 @@ def register(ctx):
             "type": "object",
             "properties": {}
         },
-        handler=lambda args: _trigger_crawlers()
+        handler=lambda args, **kwargs: _trigger_crawlers()
     )
     ctx.register_tool(
         name="pull_radar_opportunities",
@@ -181,5 +181,5 @@ def register(ctx):
                 }
             }
         },
-        handler=lambda args: _pull_cached_opportunities(args.get("limit", 5))
+        handler=lambda args, **kwargs: _pull_cached_opportunities(args.get("limit", 5))
     )

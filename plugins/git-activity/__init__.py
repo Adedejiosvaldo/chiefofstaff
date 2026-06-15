@@ -115,7 +115,7 @@ def register(ctx):
                 }
             }
         },
-        handler=lambda args: _get_local_git_commits(
+        handler=lambda args, **kwargs: _get_local_git_commits(
             args.get("repo_paths_str", ""),
             args.get("since_hours", 24)
         )

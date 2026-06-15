@@ -52,5 +52,5 @@ def register(ctx):
             "type": "object",
             "properties": {}
         },
-        handler=lambda args: _fetch_and_mark_notifications()
+        handler=lambda args, **kwargs: _fetch_and_mark_notifications()
     )
