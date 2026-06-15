@@ -193,7 +193,7 @@ def register(ctx):
                 }
             }
         },
-        handler=lambda args: _fetch_events(args.get("date_str"))
+        handler=lambda args, **kwargs: _fetch_events(args.get("date_str"))
     )
     ctx.register_tool(
         name="create_calendar_event",
@@ -216,7 +216,7 @@ def register(ctx):
             },
             "required": ["summary", "start_time_str"]
         },
-        handler=lambda args: _schedule_event(
+        handler=lambda args, **kwargs: _schedule_event(
             args["summary"],
             args["start_time_str"],
             args.get("duration_minutes", 60)
