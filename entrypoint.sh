@@ -59,6 +59,7 @@ if os.path.exists(path):
 if "platforms" not in config: config["platforms"] = {}
 if "whatsapp" not in config["platforms"]: config["platforms"]["whatsapp"] = {}
 config["platforms"]["whatsapp"]["enabled"] = True
+config["platforms"]["whatsapp"]["group_policy"] = "disabled"
 
 # Model
 if "model" not in config:
