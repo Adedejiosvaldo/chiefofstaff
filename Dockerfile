@@ -13,8 +13,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     python3-pip \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python requirements for GCal, Todoist, and scraper plugins
-RUN python3 -m pip install --no-cache-dir --break-system-packages \
+# Install Python requirements for GCal, Todoist, and scraper plugins directly inside the virtualenv
+RUN /opt/hermes/.venv/bin/python3 -m ensurepip --upgrade && \
+    /opt/hermes/.venv/bin/python3 -m pip install --no-cache-dir \
     requests \
     google-api-python-client \
     google-auth-httplib2 \
