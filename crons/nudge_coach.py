@@ -65,9 +65,9 @@ def run_nudge_coach():
             }
             # Inject writer voice context if available
             system_instruction = "You are the user's Chief of Staff. Compile the requested message in the user's exact writing style and tone."
-            voice_path = os.path.expanduser("~/.hermes/skills/writer-voice.md")
+            voice_path = os.path.expanduser("~/.hermes/skills/writing/writer-voice/SKILL.md")
             if not os.path.exists(voice_path):
-                voice_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../skills/writer-voice.md"))
+                voice_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "../skills/writing/writer-voice/SKILL.md"))
             if os.path.exists(voice_path):
                 with open(voice_path, "r", encoding="utf-8") as f:
                     system_instruction += "\n\nFollow these style guidelines:\n" + f.read()
