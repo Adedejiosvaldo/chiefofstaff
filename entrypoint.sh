@@ -91,6 +91,9 @@ print("  ✓ config.yaml configured. Enabled plugins: " + ", ".join(config["plug
 # 2c. Sync config, skills, plugins, and SOUL.md to the user's home directory (~/.hermes/) where Hermes expects them
 echo "Syncing configurations, skills, and plugins to ~/.hermes/..."
 mkdir -p ~/.hermes/skills ~/.hermes/plugins ~/.hermes/crons
+# Clean up old loose .md files from previous structure to avoid pollution
+rm -f /opt/data/skills/*.md 2>/dev/null || true
+rm -f ~/.hermes/skills/*.md 2>/dev/null || true
 cp -r /opt/data/skills/* ~/.hermes/skills/ 2>/dev/null || true
 cp -r /opt/data/plugins/* ~/.hermes/plugins/ 2>/dev/null || true
 cp -r /opt/data/crons/* ~/.hermes/crons/ 2>/dev/null || true
