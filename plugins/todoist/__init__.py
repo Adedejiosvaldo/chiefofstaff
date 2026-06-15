@@ -124,6 +124,7 @@ def register(ctx):
     """Hermes plugin registration entrypoint."""
     ctx.register_tool(
         name="get_todoist_tasks",
+        toolset="todoist",
         schema={
             "type": "object",
             "properties": {
@@ -137,6 +138,7 @@ def register(ctx):
     )
     ctx.register_tool(
         name="create_todoist_task",
+        toolset="todoist",
         schema={
             "type": "object",
             "properties": {
@@ -155,6 +157,7 @@ def register(ctx):
     )
     ctx.register_tool(
         name="complete_todoist_task",
+        toolset="todoist",
         schema={
             "type": "object",
             "properties": {

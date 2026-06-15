@@ -101,6 +101,7 @@ def register(ctx):
     """Hermes plugin registration entrypoint."""
     ctx.register_tool(
         name="analyze_local_git_activity",
+        toolset="git-activity",
         schema={
             "type": "object",
             "properties": {

@@ -183,6 +183,7 @@ def register(ctx):
     """Hermes plugin registration entrypoint."""
     ctx.register_tool(
         name="get_calendar_schedule",
+        toolset="google-calendar",
         schema={
             "type": "object",
             "properties": {
@@ -196,6 +197,7 @@ def register(ctx):
     )
     ctx.register_tool(
         name="create_calendar_event",
+        toolset="google-calendar",
         schema={
             "type": "object",
             "properties": {
