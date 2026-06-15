@@ -79,6 +79,10 @@ for p in required:
     if p not in config["plugins"]["enabled"]:
         config["plugins"]["enabled"].append(p)
 
+# Cron Wrap Response (Set to False for premium, user-friendly clean text notifications without headers/footers)
+if "cron" not in config: config["cron"] = {}
+config["cron"]["wrap_response"] = False
+
 with open(path, "w") as f:
     yaml.safe_dump(config, f, default_flow_style=False)
 print("  ✓ config.yaml configured. Enabled plugins: " + ", ".join(config["plugins"]["enabled"]))
