@@ -74,7 +74,7 @@ if "plugins" not in config: config["plugins"] = {}
 if "enabled" not in config["plugins"] or not isinstance(config["plugins"]["enabled"], list):
     config["plugins"]["enabled"] = []
 
-required = ["todoist", "buffer", "google-calendar", "git-activity", "opportunity-radar", "notification-bridge"]
+required = ["todoist", "buffer", "google-calendar", "git-activity", "opportunity-radar", "notification-bridge", "oya-gamification"]
 for p in required:
     if p not in config["plugins"]["enabled"]:
         config["plugins"]["enabled"].append(p)
