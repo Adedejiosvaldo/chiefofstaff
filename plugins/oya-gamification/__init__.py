@@ -312,6 +312,7 @@ def register(ctx):
     """Register the oya-gamification tools with Hermes Agent context."""
     ctx.register_tool(
         name="get_gamification_status",
+        toolset="oya-gamification",
         schema={
             "type": "object",
             "properties": {}
@@ -321,6 +322,7 @@ def register(ctx):
     
     ctx.register_tool(
         name="record_habit_resolution",
+        toolset="oya-gamification",
         schema={
             "type": "object",
             "properties": {
@@ -341,6 +343,7 @@ def register(ctx):
     
     ctx.register_tool(
         name="get_daily_trivia",
+        toolset="oya-gamification",
         schema={
             "type": "object",
             "properties": {}
@@ -350,6 +353,7 @@ def register(ctx):
     
     ctx.register_tool(
         name="submit_trivia_answer",
+        toolset="oya-gamification",
         schema={
             "type": "object",
             "properties": {

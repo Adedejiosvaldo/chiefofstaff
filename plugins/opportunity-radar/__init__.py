@@ -162,6 +162,7 @@ def register(ctx):
     """Hermes plugin registration entrypoint."""
     ctx.register_tool(
         name="run_opportunity_crawler",
+        toolset="opportunity-radar",
         schema={
             "type": "object",
             "properties": {}
@@ -170,6 +171,7 @@ def register(ctx):
     )
     ctx.register_tool(
         name="pull_radar_opportunities",
+        toolset="opportunity-radar",
         schema={
             "type": "object",
             "properties": {

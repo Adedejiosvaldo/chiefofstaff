@@ -70,6 +70,7 @@ def register(ctx):
     """Hermes plugin registration entrypoint."""
     ctx.register_tool(
         name="buffer_queue_post",
+        toolset="buffer",
         schema={
             "type": "object",
             "properties": {

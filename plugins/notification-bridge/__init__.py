@@ -47,6 +47,7 @@ def register(ctx):
     """Hermes plugin registration entrypoint."""
     ctx.register_tool(
         name="fetch_pending_notifications",
+        toolset="notification-bridge",
         schema={
             "type": "object",
             "properties": {}
