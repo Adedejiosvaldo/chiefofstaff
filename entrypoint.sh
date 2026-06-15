@@ -59,6 +59,7 @@ if os.path.exists(path):
 if "platforms" not in config: config["platforms"] = {}
 if "whatsapp" not in config["platforms"]: config["platforms"]["whatsapp"] = {}
 config["platforms"]["whatsapp"]["enabled"] = True
+config["platforms"]["whatsapp"]["group_policy"] = "disabled"
 
 # Model
 if "model" not in config:
@@ -73,10 +74,14 @@ if "plugins" not in config: config["plugins"] = {}
 if "enabled" not in config["plugins"] or not isinstance(config["plugins"]["enabled"], list):
     config["plugins"]["enabled"] = []
 
-required = ["todoist", "buffer", "google-calendar", "git-activity", "opportunity-radar", "notification-bridge"]
+required = ["todoist", "buffer", "google-calendar", "git-activity", "opportunity-radar", "notification-bridge", "oya-gamification"]
 for p in required:
     if p not in config["plugins"]["enabled"]:
         config["plugins"]["enabled"].append(p)
+
+# Cron Wrap Response (Set to False for premium, user-friendly clean text notifications without headers/footers)
+if "cron" not in config: config["cron"] = {}
+config["cron"]["wrap_response"] = False
 
 with open(path, "w") as f:
     yaml.safe_dump(config, f, default_flow_style=False)

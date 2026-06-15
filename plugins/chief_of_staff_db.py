@@ -74,8 +74,49 @@ def init_db():
         )
     """)
     
+    # 5. Create gamification_user_stats table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS gamification_user_stats (
+            user_id TEXT PRIMARY KEY DEFAULT 'default_user',
+            xp INTEGER DEFAULT 0,
+            level INTEGER DEFAULT 1,
+            streak_freezes INTEGER DEFAULT 2,
+            hearts INTEGER DEFAULT 5,
+            global_streak INTEGER DEFAULT 0,
+            longest_streak INTEGER DEFAULT 0,
+            last_active_date TEXT
+        )
+    """)
+
+    # 6. Create gamification_habit_streaks table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS gamification_habit_streaks (
+            habit_name TEXT PRIMARY KEY,
+            streak INTEGER DEFAULT 0,
+            best_streak INTEGER DEFAULT 0,
+            total_completions INTEGER DEFAULT 0
+        )
+    """)
+
+    # 7. Create gamification_achievements table
+    cursor.execute("""
+        CREATE TABLE IF NOT EXISTS gamification_achievements (
+            badge_name TEXT PRIMARY KEY,
+            unlocked_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+
+    # Seed default user stats if not already present
+    cursor.execute("SELECT COUNT(*) FROM gamification_user_stats WHERE user_id = 'default_user'")
+    if cursor.fetchone()[0] == 0:
+        cursor.execute("""
+            INSERT INTO gamification_user_stats (user_id, xp, level, streak_freezes, hearts, global_streak, longest_streak)
+            VALUES ('default_user', 0, 1, 2, 5, 0, 0)
+        """)
+
     conn.commit()
     conn.close()
+
 
 # --- Notifications Helpers ---
 
@@ -179,8 +220,130 @@ def update_opportunity_status(opp_id: int, status: str):
     conn.commit()
     conn.close()
 
+# --- Gamification Helpers ---
+
+def get_gamification_stats() -> dict:
+    """Fetches global user stats, active streaks, and achievements."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    # 1. Fetch user stats
+    cursor.execute("SELECT * FROM gamification_user_stats WHERE user_id = 'default_user'")
+    row = cursor.fetchone()
+    stats = dict(row) if row else {
+        "user_id": "default_user", "xp": 0, "level": 1, "streak_freezes": 2, 
+        "hearts": 5, "global_streak": 0, "longest_streak": 0, "last_active_date": None
+    }
+    
+    # 2. Fetch all habit streaks
+    cursor.execute("SELECT * FROM gamification_habit_streaks ORDER BY streak DESC")
+    stats["streaks"] = [dict(r) for r in cursor.fetchall()]
+    
+    # 3. Fetch achievements
+    cursor.execute("SELECT badge_name FROM gamification_achievements ORDER BY unlocked_at ASC")
+    stats["achievements"] = [r["badge_name"] for r in cursor.fetchall()]
+    
+    conn.close()
+    return stats
+
+def update_gamification_stats(xp: int = None, level: int = None, streak_freezes: int = None, 
+                             hearts: int = None, global_streak: int = None, longest_streak: int = None, 
+                             last_active_date: str = None):
+    """Updates one or more global user stats fields."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    
+    fields = []
+    values = []
+    if xp is not None:
+        fields.append("xp = ?")
+        values.append(xp)
+    if level is not None:
+        fields.append("level = ?")
+        values.append(level)
+    if streak_freezes is not None:
+        fields.append("streak_freezes = ?")
+        values.append(streak_freezes)
+    if hearts is not None:
+        fields.append("hearts = ?")
+        values.append(hearts)
+    if global_streak is not None:
+        fields.append("global_streak = ?")
+        values.append(global_streak)
+    if longest_streak is not None:
+        fields.append("longest_streak = ?")
+        values.append(longest_streak)
+    if last_active_date is not None:
+        fields.append("last_active_date = ?")
+        values.append(last_active_date)
+        
+    if fields:
+        query = f"UPDATE gamification_user_stats SET {', '.join(fields)} WHERE user_id = 'default_user'"
+        cursor.execute(query, tuple(values))
+        conn.commit()
+    conn.close()
+
+def get_habit_streak(habit_name: str) -> dict:
+    """Fetches a specific habit's streak and completion stats, initializing if not present."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT * FROM gamification_habit_streaks WHERE habit_name = ?", (habit_name,))
+    row = cursor.fetchone()
+    
+    if not row:
+        cursor.execute(
+            "INSERT INTO gamification_habit_streaks (habit_name, streak, best_streak, total_completions) VALUES (?, 0, 0, 0)",
+            (habit_name,)
+        )
+        conn.commit()
+        stats = {"habit_name": habit_name, "streak": 0, "best_streak": 0, "total_completions": 0}
+    else:
+        stats = dict(row)
+        
+    conn.close()
+    return stats
+
+def update_habit_streak(habit_name: str, streak: int, best_streak: int, total_completions: int):
+    """Updates the streak records for a specific habit."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("""
+        UPDATE gamification_habit_streaks 
+        SET streak = ?, best_streak = ?, total_completions = ? 
+        WHERE habit_name = ?
+    """, (streak, best_streak, total_completions, habit_name))
+    conn.commit()
+    conn.close()
+
+def unlock_achievement(badge_name: str) -> bool:
+    """Locks/unlocks an achievement badge. Returns True if successfully unlocked, False if already had it."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    try:
+        cursor.execute("INSERT INTO gamification_achievements (badge_name) VALUES (?)", (badge_name,))
+        conn.commit()
+        success = True
+    except sqlite3.IntegrityError:
+        success = False
+    conn.close()
+    return success
+
+def get_unlocked_achievements() -> list:
+    """Gets all unlocked badge names."""
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute("SELECT badge_name FROM gamification_achievements")
+    badges = [row["badge_name"] for row in cursor.fetchall()]
+    conn.close()
+    return badges
+
+def reset_weekly_hearts():
+    """Resets user hearts to full capacity (5 hearts) for a new week."""
+    update_gamification_stats(hearts=5)
+
 # Initialize DB on load
 try:
     init_db()
 except Exception as e:
     print(f"Error initializing DB: {e}")
+

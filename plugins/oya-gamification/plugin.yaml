@@ -1,0 +1,3 @@
+name: oya-gamification
+description: Handles XP, level progress, streaks, streak freezes, and Hearts/Lives for the Oya & Duo gamified coaching engine.
+version: 1.0.0
