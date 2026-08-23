@@ -61,3 +61,32 @@ def register(ctx):
         },
         handler=lambda args, **kwargs: core_todoist.complete_task((args or {}).get("task_id") or (args or {}).get("task_name") or (args or {}).get("content") or "")
     )
+
+    ctx.register_tool(
+        name="update_todoist_task",
+        toolset="todoist",
+        schema={
+            "type": "object",
+            "description": "Reschedule or rename an existing task on Todoist by task ID or name/keyword.",
+            "properties": {
+                "task_id": {
+                    "type": "string",
+                    "description": "The task ID or keyword in task name (e.g. 'chunking', 'prembly')."
+                },
+                "due_string": {
+                    "type": "string",
+                    "description": "New due date in natural language (e.g. 'tomorrow', 'next monday 10am', 'Aug 23')."
+                },
+                "content": {
+                    "type": "string",
+                    "description": "Optional new task title."
+                }
+            },
+            "required": ["task_id"]
+        },
+        handler=lambda args, **kwargs: core_todoist.update_task(
+            task_id_or_name=(args or {}).get("task_id") or (args or {}).get("task_name") or (args or {}).get("content") or "",
+            due_string=(args or {}).get("due_string"),
+            content=(args or {}).get("new_content") or (args or {}).get("content") if (args or {}).get("due_string") else None
+        )
+    )

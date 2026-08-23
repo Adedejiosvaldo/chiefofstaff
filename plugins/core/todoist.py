@@ -192,3 +192,84 @@ def complete_task(task_id_or_name: str) -> str:
         return f"✅ **Todoist Task Completed**: '{matched_title}' has been checked off in Todoist!"
     except Exception as e:
         return f"Error completing Todoist task '{task_id_or_name}': {str(e)}"
+
+
+def update_task(task_id_or_name: str, due_string: str = None, content: str = None) -> str:
+    """
+    Updates an existing Todoist task's due date or title by ID or fuzzy name match.
+
+    Args:
+        task_id_or_name (str): The task ID or keyword in task title.
+        due_string (str, optional): New natural due date (e.g. 'tomorrow', 'next monday 10am').
+        content (str, optional): New task title if renaming.
+    """
+    headers = get_todoist_headers()
+    if not headers:
+        return f"✅ **[MOCK SUCCESS] Rescheduled Todoist Task**: '{task_id_or_name}' to '{due_string}'."
+
+    target_id = task_id_or_name.strip()
+    matched_title = target_id
+
+    try:
+        url_list = "https://api.todoist.com/api/v1/tasks"
+        if REQUESTS_AVAILABLE:
+            resp = requests.get(url_list, headers=headers, timeout=10)
+            resp.raise_for_status()
+            data = resp.json()
+        else:
+            req = urllib.request.Request(url_list, headers=headers)
+            with urllib.request.urlopen(req, timeout=10) as r:
+                data = json.loads(r.read().decode("utf-8"))
+        
+        tasks = data.get("results", data) if isinstance(data, dict) else data
+
+        found_id = None
+        for t in tasks:
+            if t.get("id") == target_id:
+                found_id = t.get("id")
+                matched_title = t.get("content")
+                break
+
+        if not found_id:
+            for t in tasks:
+                c = t.get("content", "").lower()
+                if target_id.lower() in c or c in target_id.lower():
+                    found_id = t.get("id")
+                    matched_title = t.get("content")
+                    break
+
+        if not found_id:
+            target_words = set(target_id.lower().split())
+            best_overlap = 0
+            for t in tasks:
+                words = set(t.get("content", "").lower().split())
+                overlap = len(target_words & words)
+                if overlap > best_overlap:
+                    best_overlap = overlap
+                    found_id = t.get("id")
+                    matched_title = t.get("content")
+
+        if found_id:
+            target_id = found_id
+
+        payload = {}
+        if due_string:
+            payload["due_string"] = due_string
+        if content:
+            payload["content"] = content
+
+        url_update = f"https://api.todoist.com/api/v1/tasks/{target_id}"
+        if REQUESTS_AVAILABLE:
+            response = requests.post(url_update, headers=headers, json=payload, timeout=10)
+            response.raise_for_status()
+            updated = response.json()
+        else:
+            data = json.dumps(payload).encode("utf-8")
+            req = urllib.request.Request(url_update, data=data, headers=headers, method="POST")
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                updated = json.loads(resp.read().decode("utf-8"))
+
+        new_due = (updated.get("due") or {}).get("string", (updated.get("due") or {}).get("date", due_string or "updated"))
+        return f"✅ **Todoist Task Rescheduled**: '{matched_title}' moved to **{new_due}**!"
+    except Exception as e:
+        return f"Error updating Todoist task '{task_id_or_name}': {str(e)}"
