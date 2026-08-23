@@ -1,13 +1,12 @@
 #!/bin/bash
-
-# setup.sh - Installs Hermes Agent and sets up the Personal Chief of Staff configuration.
+# setup.sh - Sets up the Personal Chief of Staff on the local host or VM.
 
 set -e
 
 echo "Starting Personal Chief of Staff Setup..."
 
-# 1. Install Hermes Agent
-echo "Installing Hermes Agent..."
+# 1. Install Hermes Agent if needed
+echo "Checking Hermes Agent installation..."
 if ! command -v hermes &> /dev/null; then
     curl -fsSL https://raw.githubusercontent.com/NousResearch/hermes-agent/main/scripts/install.sh | bash
     echo "Hermes Agent installed successfully."
@@ -23,9 +22,8 @@ pip3 install -q requests google-api-python-client google-auth-httplib2 google-au
 echo "Setting up ~/.hermes directories..."
 HERMES_DIR="$HOME/.hermes"
 mkdir -p "$HERMES_DIR/skills"
-mkdir -p "$HERMES_DIR/plugins"
+mkdir -p "$HERMES_DIR/plugins/core"
 mkdir -p "$HERMES_DIR/crons"
-mkdir -p "$HERMES_DIR/honcho"
 mkdir -p "$HERMES_DIR/platforms/whatsapp/session"
 chmod 700 "$HERMES_DIR"
 
@@ -34,6 +32,7 @@ echo "Copying skills, plugins, and crons to ~/.hermes..."
 cp -r skills/* "$HERMES_DIR/skills/" 2>/dev/null || true
 cp -r plugins/* "$HERMES_DIR/plugins/" 2>/dev/null || true
 cp -r crons/* "$HERMES_DIR/crons/" 2>/dev/null || true
+if [ -f "data/SOUL.md" ]; then cp data/SOUL.md "$HERMES_DIR/SOUL.md"; fi
 
 # 4. Setup .env file
 echo "Setting up configuration (.env)..."
@@ -41,8 +40,6 @@ if [ ! -f "$HERMES_DIR/.env" ]; then
     if [ -f ".env.example" ]; then
         cp .env.example "$HERMES_DIR/.env"
         echo "Created ~/.hermes/.env from .env.example. Please edit it to add your API keys."
-    else
-        echo "Warning: .env.example not found in the current directory."
     fi
 else
     echo "~/.hermes/.env already exists."
@@ -51,8 +48,7 @@ fi
 echo "=========================================================="
 echo "Setup complete!"
 echo "Next steps:"
-echo "1. Edit ~/.hermes/.env and add your API keys (Anthropic, Groq, Buffer, etc)."
-echo "2. Run 'hermes setup' to configure Claude API."
-echo "3. Run 'hermes whatsapp' to scan the QR code and pair your device."
-echo "4. Set up cron jobs using the scripts provided in ~/.hermes/crons/."
+echo "1. Edit ~/.hermes/.env and add your OPENROUTER_API_KEY (or DEEPSEEK_API_KEY)."
+echo "2. Run 'hermes whatsapp' to scan the QR code and pair your device."
+echo "3. Run '~/.hermes/crons/install_crons.sh' to activate proactive scheduled routines."
 echo "=========================================================="

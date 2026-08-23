@@ -3,29 +3,26 @@ import sys
 import json
 from datetime import datetime
 
-# Add parent plugins directory so we can import the shared DB module
+# Import shared core module
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
-import chief_of_staff_db
+from core import db
 
 
 def _fetch_and_mark_notifications() -> str:
     """
-    Queries the SQLite database for any pending outbound notifications/cron triggers,
-    marks them as 'sent', and returns them as a combined prompt for the agent to action.
-
-    Returns:
-        str: A formatted string of pending alerts to process, or a message indicating no pending items.
+    Queries SQLite for pending outbound notifications, marks them sent,
+    and returns them formatted for the agent.
     """
     try:
-        pending_list = chief_of_staff_db.get_pending_notifications()
+        pending_list = db.get_pending_notifications()
         if not pending_list:
             return "No pending notifications."
 
         response_parts = ["### PENDING SCHEDULED ALERTS TO PROCESS ###\n"]
         for idx, item in enumerate(pending_list, 1):
-            chief_of_staff_db.update_notification_status(item["id"], "sent")
+            db.update_notification_status(item["id"], "sent")
 
-            chief_of_staff_db.log_telemetry(
+            db.log_telemetry(
                 event_type="notification_processed",
                 details={
                     "notification_id": item["id"],
@@ -36,7 +33,7 @@ def _fetch_and_mark_notifications() -> str:
             response_parts.append(f"{idx}. [ID: {item['id']}] {item['prompt']}")
 
         response_parts.append(
-            "\nAction required: Please process the above alerts, generate the requested briefings or reminders, and deliver them to the user in your response."
+            "\nAction required: Please process the above alerts, generate the requested briefings or reminders, and deliver them to the user."
         )
         return "\n".join(response_parts)
 
@@ -47,43 +44,34 @@ def _fetch_and_mark_notifications() -> str:
 def _add_notification_tool(prompt: str) -> str:
     """Queues a new notification/reminder in the SQLite database."""
     try:
-        notification_id = chief_of_staff_db.add_notification(prompt)
+        notification_id = db.add_notification(prompt)
         return json.dumps({
             "success": True,
             "notification_id": notification_id,
             "message": f"Successfully queued notification with ID: {notification_id}"
         })
     except Exception as e:
-        return json.dumps({
-            "success": False,
-            "error": str(e)
-        })
+        return json.dumps({"success": False, "error": str(e)})
 
 
 def _get_recent_telemetry_tool(days: int = 14, limit: int = 100) -> str:
-    """Retrieves recent system and user compliance telemetry logs."""
+    """Retrieves recent telemetry logs."""
     try:
-        logs = chief_of_staff_db.get_recent_telemetry(days=days, limit=limit)
+        logs = db.get_recent_telemetry(days=days, limit=limit)
         return json.dumps({
             "success": True,
             "logs": [dict(log) for log in logs]
         })
     except Exception as e:
-        return json.dumps({
-            "success": False,
-            "error": str(e)
-        })
+        return json.dumps({"success": False, "error": str(e)})
 
 
 def register(ctx):
-    """Hermes plugin registration entrypoint."""
+    """Hermes plugin registration entrypoint for notification bridge."""
     ctx.register_tool(
         name="fetch_pending_notifications",
         toolset="notification-bridge",
-        schema={
-            "type": "object",
-            "properties": {}
-        },
+        schema={"type": "object", "properties": {}},
         handler=lambda args, **kwargs: _fetch_and_mark_notifications()
     )
 
@@ -95,7 +83,7 @@ def register(ctx):
             "properties": {
                 "prompt": {
                     "type": "string",
-                    "description": "The prompt or notification text/reminder to queue in the database."
+                    "description": "The prompt or notification text/reminder to queue."
                 }
             },
             "required": ["prompt"]

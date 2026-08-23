@@ -7,11 +7,19 @@ services:
     restart: unless-stopped
     ports:
       - "8642:8642"
+    env_file:
+      - path: .env
+        required: false
+      - path: ./data/.env
+        required: false
     volumes:
-      # Mounts your persistent local folder to /opt/data where SQLite, GCal credentials, and configs reside
+      # Mounts your persistent local folder where SQLite DB, GCal tokens, and config reside
       - ./data:/opt/data
+      # Mount parent projects folder for local git activity scanning
+      - ..:/opt/repos:ro
     environment:
       - TZ=Africa/Lagos # Set standard time sync for crons
       - PAGER=cat
       - HERMES_ALLOW_ROOT_GATEWAY=1
       - HERMES_ENABLE_PROJECT_PLUGINS=true
+      - GIT_REPO_PATHS=/opt/repos/chiefofstaff,/opt/repos/zgic-staffclockin

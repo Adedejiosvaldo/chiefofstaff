@@ -1,49 +1,96 @@
-# Personal Chief of Staff Agent
+# ⚡ Personal Chief of Staff (Executive AI PA)
 
-A self-hosted, WhatsApp-native personal AI agent built on Hermes Agent (Nous Research) that acts as an aggressive accountability coach and Chief of Staff.
+A self-hosted, WhatsApp-native personal AI agent built on **Hermes Agent (Nous Research)** and powered by **DeepSeek-V3** and **Gemini 2.0 Flash**. Acts as your proactive Chief of Staff, aggressive accountability coach (Oya), and technical ghostwriter.
 
-## Overview
-This is not a passive assistant that waits for instructions. This agent takes charge of your routine:
-- **Organizes Your Life**: Understands your schedule in-depth, suggests the best times to read based on your rhythm, and surfaces relevant materials.
-- **Takes Charge**: It doesn't just ask "What do you want to do?". It presents you with what needs to be done today.
-- **Accountability Coach**: It follows up on tasks. If you haven't written your Monday/Friday blog post, it will ask why and push you to block out time.
-- **Proactive Drafting**: Pre-drafts LinkedIn posts based on your voice notes and interests, presenting them for a simple approval workflow (`ship`, `redo`, `kill`).
+---
 
-## Features
-- **WhatsApp Native**: Operates entirely within WhatsApp.
-- **LinkedIn Drafting & Queuing**: Drafts posts in your voice. Once you say `ship`, it automatically adds it to your Buffer queue.
-- **Daily Briefs**: 7:00 AM weekday briefings with your schedule, top todos, and a pre-drafted post.
-- **Blog Follow-ups**: Reminds you to write your blog on Monday and Friday, and follows up at 4:00 PM to ensure it's done.
-- **Weekly Content Batch**: Drafts a batch of content every Sunday at 6:00 PM.
+## 🌟 Core Features
 
-## Setup Instructions
+- **📱 WhatsApp Native**: Operates entirely inside your WhatsApp chats with 1-touch actions (`1`, `2`, `ship`, `done`).
+- **🌅 Executive Morning Briefs (7:00 AM)**: Pulls Google Calendar, Todoist, unpushed local commits + GitHub pushes ([Adedejiosvaldo](https://github.com/Adedejiosvaldo)), and pre-drafts a high-impact LinkedIn post in your authentic writing voice.
+- **🎯 5:00 PM Accountability Coach**: Scans open tasks, audits tomorrow's calendar for open deep-work blocks, and nudges you to complete commitments.
+- **🎮 Oya Gamification & Dynamic Trivia Engine**:
+  - Streak tracking (🔥), Heart budget (💖 5/5), Streak Freezes (🧊), and XP level progression.
+  - **Dynamic On-The-Fly Trivia Challenges**: Generates unpredictable, brutally hard staff/principal-level questions in real-time across AI Engineering, Linux Kernel/DevOps, and Distributed Systems with savage rating breakdowns.
+- **🌐 DevOps & Relocation Opportunity Radar**: Scrapes international remote DevOps/SRE roles outside Africa (US, UK, EU) and tags matches with `✈️ [VISA / RELOCATION SPONSORSHIP]`.
+- **✍️ Weekly Tech Digest**: Aggregates top LLM model releases, distributed systems papers, and cloud post-mortems on the weekend.
+- **💰 Ultra-Low-Cost (<$1.00/Month)**: Uses DeepSeek-V3 for conversational intelligence and Gemini 2.0 Flash for background audits via OpenRouter.
 
-1. **Clone this repository** (or copy its contents).
-2. **Run the setup script**:
-   ```bash
-   ./setup.sh
-   ```
-   This will install Hermes Agent, set up the `~/.hermes` directories, and copy over the custom skills, plugins, and cron scripts.
-3. **Configure API Keys**:
-   Edit the newly created `~/.hermes/.env` file and add your API keys (Anthropic, Groq, Buffer).
-4. **Connect WhatsApp**:
-   Run `hermes whatsapp` in your terminal and scan the QR code with your phone. Ensure `WHATSAPP_ALLOWED_USERS` in your `.env` is set to your number.
-5. **Install Scheduled Tasks**:
-   Run the cron installer to set up the automated routines:
-   ```bash
-   ~/.hermes/crons/install_crons.sh
-   ```
+---
 
-## Workflow Example
-- **7:00 AM**: Agent messages you on WhatsApp: "Here is your daily brief. You have 3 meetings today. I suggest moving the 2pm sync as your schedule is heavy. Here is a drafted LinkedIn post on OCR in Fintech. Reply `ship` to queue it."
-- **You**: "ship"
-- **Agent**: *Queues post via Buffer plugin*. "Done. Queued for 8am."
-- **4:00 PM**: Agent messages: "Did you finish the blog post you were supposed to write today? If not, let's block 30 minutes right now."
+## 🚀 Quick Deployment (Docker)
 
-## Components
-- `skills/`: Custom instructions that dictate the agent's behavior (e.g., `life-organizer.md`, `linkedin-draft.md`).
-- `plugins/`: Python scripts that extend the agent's capabilities (e.g., `buffer_plugin.py`).
-- `crons/`: Bash scripts triggered by the system cron to initiate proactive conversations.
+### 1. Configure Environment
+Copy `.env.example` to `.env`:
+```bash
+cp .env.example .env
+```
+Edit `.env` and fill in your keys:
+- `OPENROUTER_API_KEY`: Get from [openrouter.ai/keys](https://openrouter.ai/keys)
+- `TODOIST_API_TOKEN`: Get from [Todoist Developer Integrations](https://todoist.com/app/settings/integrations/developer)
+- `BUFFER_ACCESS_TOKEN`: For automatic LinkedIn scheduling
+- `WHATSAPP_ALLOWED_USERS`: Your phone number with country code (e.g. `2348012345678`)
 
-## Privacy & Security
-All credentials, memory, and skills stay on your own infrastructure. No data is shared with external parties beyond the necessary API calls to LLMs and Buffer.
+### 2. Start Container
+```bash
+docker compose up -d --build
+```
+
+### 3. Pair WhatsApp
+Scan the QR code to connect your WhatsApp session:
+```bash
+docker exec -it chief-of-staff-agent /opt/hermes/.venv/bin/hermes whatsapp
+```
+
+---
+
+## 💻 Local VM / Host Setup (Alternative)
+
+If running without Docker:
+```bash
+./setup.sh
+```
+Follow the terminal prompts to configure keys, run `hermes whatsapp` to pair, and activate crons with `~/.hermes/crons/install_crons.sh`.
+
+---
+
+## 🧪 Automated Testing
+
+Verify all 8 subsystems, database state, mock fallbacks, and plugin registrations:
+```bash
+python3 tests/test_all.py
+```
+
+---
+
+## 📁 Architecture Overview
+
+```text
+chiefofstaff/
+├── plugins/
+│   ├── core/                    # Unified Core Integration Engine
+│   │   ├── db.py                # Context-managed SQLite State & CRUD
+│   │   ├── todoist.py           # Todoist REST API v2 Client
+│   │   ├── calendar.py          # Google Calendar Client (Africa/Lagos)
+│   │   ├── git_activity.py      # Universal Git Scanner & GitHub Events API
+│   │   ├── opportunity.py       # DevOps & Relocation Opportunity Radar
+│   │   ├── buffer.py            # Buffer LinkedIn Publishing Client
+│   │   └── dynamic_trivia.py    # On-The-Fly Staff-Level Trivia Engine
+│   ├── oya-gamification/        # Gamification & Streaks Toolset
+│   ├── todoist/                 # Todoist Plugin
+│   ├── google-calendar/         # Calendar Plugin
+│   ├── git-activity/            # Git Activity Plugin
+│   ├── opportunity-radar/       # Opportunity Radar Plugin
+│   ├── buffer/                  # Buffer Plugin
+│   └── notification-bridge/     # Outbound Cron Notification Toolset
+├── crons/                       # Proactive Scheduled Routines
+│   ├── daily_brief.py           # 7:00 AM Executive Briefing Generator
+│   ├── nudge_coach.py           # 5:00 PM Accountability Nudge Generator
+│   └── *.sh                     # System Cron Triggers
+├── skills/                      # Agent Personas & Style Guides
+│   ├── productivity/            # Life Organizer, Routine Analyzer, Tech Digest
+│   └── writing/                 # Joseph Adewunmi Writer Voice & LinkedIn Ghostwriting
+├── Dockerfile                   # Hardened Production Container
+├── docker-compose.yml           # Multi-mount Deployment Compose
+└── entrypoint.sh                # Container Bootstrapper & Cron Initializer
+```
