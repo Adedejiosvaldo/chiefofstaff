@@ -51,7 +51,7 @@ fi
 
 # 2b. Safely initialize and configure config.yaml using Hermes PyYAML
 echo "Configuring config.yaml and enabling custom plugins..."
-/opt/hermes/.venv/bin/python -c '
+python3 -c '
 import os, yaml
 path = "/opt/data/config.yaml"
 config = {}
@@ -68,12 +68,16 @@ if "whatsapp" not in config["platforms"]: config["platforms"]["whatsapp"] = {}
 config["platforms"]["whatsapp"]["enabled"] = True
 config["platforms"]["whatsapp"]["group_policy"] = "disabled"
 
-# Model routing (Defaulting to DeepSeek-V3 for ultra-low cost high intelligence)
-if "model" not in config:
-    config["model"] = {"provider": "openrouter", "default": "deepseek/deepseek-chat"}
-else:
-    if config.get("model", {}).get("default") in ["anthropic/claude-3.5-sonnet", "anthropic/claude-3-5-sonnet"]:
-        config["model"]["default"] = "deepseek/deepseek-chat"
+# Model routing: ALWAYS align model with environment variables
+chosen_model = os.environ.get("LLM_MODEL_WHATSAPP") or "deepseek/deepseek-chat"
+config["model"] = {
+    "provider": "openrouter",
+    "default": chosen_model
+}
+
+# Auxiliary model routing
+if "auxiliary" not in config: config["auxiliary"] = {}
+config["auxiliary"]["openrouter_model"] = os.environ.get("LLM_MODEL_CRONS") or "deepseek/deepseek-chat"
 
 # Plugins
 if "plugins" not in config: config["plugins"] = {}
@@ -97,7 +101,7 @@ config["display"]["tool_progress"] = "off"
 
 with open(path, "w") as f:
     yaml.safe_dump(config, f, default_flow_style=False)
-print("  ✓ config.yaml configured. Enabled plugins: " + ", ".join(config["plugins"]["enabled"]))
+print("  ✓ config.yaml configured. Active Model: " + chosen_model + " | Enabled plugins: " + ", ".join(config["plugins"]["enabled"]))
 '
 
 # 2c. Sync config, skills, plugins, and SOUL.md to ~/.hermes/
