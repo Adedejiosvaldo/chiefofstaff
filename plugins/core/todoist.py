@@ -12,7 +12,7 @@ except ImportError:
 
 
 def get_todoist_headers() -> dict:
-    """Returns authorization headers for Todoist API v2."""
+    """Returns authorization headers for Todoist API v1."""
     token = os.environ.get("TODOIST_API_TOKEN")
     if not token:
         return {}
@@ -37,7 +37,7 @@ def get_mock_tasks() -> str:
 
 def fetch_todoist_tasks(filter_query: str = "today | overdue") -> str:
     """
-    Fetches open tasks from Todoist REST API v2 matching a query filter.
+    Fetches open tasks from the official Todoist API v1 matching a query filter.
 
     Args:
         filter_query (str): Todoist filter expression (defaults to 'today | overdue').
@@ -46,7 +46,7 @@ def fetch_todoist_tasks(filter_query: str = "today | overdue") -> str:
     if not headers:
         return get_mock_tasks()
 
-    url = "https://api.todoist.com/rest/v2/tasks"
+    url = "https://api.todoist.com/api/v1/tasks"
     params = {}
     if filter_query:
         params["filter"] = filter_query
@@ -55,13 +55,15 @@ def fetch_todoist_tasks(filter_query: str = "today | overdue") -> str:
         if REQUESTS_AVAILABLE:
             response = requests.get(url, headers=headers, params=params, timeout=10)
             response.raise_for_status()
-            tasks = response.json()
+            data = response.json()
         else:
             query_string = urllib.parse.urlencode(params)
             full_url = f"{url}?{query_string}" if query_string else url
             req = urllib.request.Request(full_url, headers=headers)
             with urllib.request.urlopen(req, timeout=10) as resp:
-                tasks = json.loads(resp.read().decode("utf-8"))
+                data = json.loads(resp.read().decode("utf-8"))
+
+        tasks = data.get("results", data) if isinstance(data, dict) else data
 
         if not tasks:
             return "✅ **Todoist Board**: No active or overdue tasks scheduled! Excellent work."
@@ -83,7 +85,7 @@ def fetch_todoist_tasks(filter_query: str = "today | overdue") -> str:
 
 def create_task(content: str, due_string: str = None) -> str:
     """
-    Creates a new task in Todoist REST API v2.
+    Creates a new task in Todoist API v1.
 
     Args:
         content (str): The text of the task.
@@ -98,7 +100,7 @@ def create_task(content: str, due_string: str = None) -> str:
             f"ℹ️ *Note: TODOIST_API_TOKEN is missing. This mock task has been recorded.*"
         )
 
-    url = "https://api.todoist.com/rest/v2/tasks"
+    url = "https://api.todoist.com/api/v1/tasks"
     payload = {"content": content}
     if due_string:
         payload["due_string"] = due_string
@@ -121,7 +123,7 @@ def create_task(content: str, due_string: str = None) -> str:
 
 def complete_task(task_id: str) -> str:
     """
-    Marks a Todoist task as completed via REST API v2.
+    Marks a Todoist task as completed via API v1.
 
     Args:
         task_id (str): The Todoist alphanumeric ID.
@@ -130,7 +132,7 @@ def complete_task(task_id: str) -> str:
     if not headers:
         return f"✅ **[MOCK SUCCESS] Completed Todoist Task**: Marked task ID **'{task_id}'** as completed."
 
-    url = f"https://api.todoist.com/rest/v2/tasks/{task_id}/close"
+    url = f"https://api.todoist.com/api/v1/tasks/{task_id}/close"
 
     try:
         if REQUESTS_AVAILABLE:
