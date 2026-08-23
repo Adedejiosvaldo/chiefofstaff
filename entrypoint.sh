@@ -113,7 +113,12 @@ cp -r /opt/data/skills/* ~/.hermes/skills/ 2>/dev/null || true
 cp -r /opt/data/plugins/* ~/.hermes/plugins/ 2>/dev/null || true
 cp -r /opt/data/crons/* ~/.hermes/crons/ 2>/dev/null || true
 if [ -f "/opt/data/config.yaml" ]; then cp /opt/data/config.yaml ~/.hermes/config.yaml; fi
-if [ -f "/opt/data/SOUL.md" ]; then cp /opt/data/SOUL.md ~/.hermes/SOUL.md; fi
+if [ -f "/opt/app/SOUL.md" ]; then
+    cp /opt/app/SOUL.md /opt/data/SOUL.md
+    cp /opt/app/SOUL.md ~/.hermes/SOUL.md
+elif [ -f "/opt/data/SOUL.md" ]; then
+    cp /opt/data/SOUL.md ~/.hermes/SOUL.md
+fi
 
 # 3. Export environment variables to /etc/environment for background cron jobs
 printenv | grep -E '^(OPENROUTER|DEEPSEEK|ANTHROPIC|GROQ|TODOIST|BUFFER|GITHUB|GIT_REPO|TZ|WHATSAPP|HERMES)' > /etc/environment 2>/dev/null || true

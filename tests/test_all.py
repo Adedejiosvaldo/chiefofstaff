@@ -32,11 +32,12 @@ class MockPluginContext:
     def __init__(self):
         self.tools = {}
 
-    def register_tool(self, name, toolset, schema, handler):
+    def register_tool(self, name, toolset, schema, handler, **kwargs):
         self.tools[name] = {
             "toolset": toolset,
             "schema": schema,
-            "handler": handler
+            "handler": handler,
+            **kwargs
         }
 
 

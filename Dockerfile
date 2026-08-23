@@ -36,6 +36,7 @@ COPY plugins /opt/app/plugins/
 COPY crons /opt/app/crons/
 COPY setup.sh /opt/app/setup.sh
 COPY entrypoint.sh /opt/app/entrypoint.sh
+COPY SOUL.md /opt/app/SOUL.md
 
 # Ensure all scripts are executable
 RUN chmod +x /opt/app/crons/*.sh /opt/app/setup.sh /opt/app/entrypoint.sh
