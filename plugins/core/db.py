@@ -149,9 +149,14 @@ def add_notification(prompt: str) -> int:
         return cursor.lastrowid
 
 
-def get_pending_notifications():
-    """Fetches all pending notifications in FIFO order."""
-    with get_db_cursor() as cursor:
+def get_pending_notifications(max_age_hours: int = 48):
+    """Fetches all pending notifications in FIFO order, auto-expiring stale ones older than max_age_hours."""
+    with get_db_cursor(commit=True) as cursor:
+        # Automatically expire stale notifications older than max_age_hours
+        cursor.execute(
+            "UPDATE notifications SET status = 'expired' WHERE status = 'pending' AND created_at < datetime('now', '-' || ? || ' hours')",
+            (max_age_hours,)
+        )
         cursor.execute("SELECT * FROM notifications WHERE status = 'pending' ORDER BY created_at ASC")
         return [dict(row) for row in cursor.fetchall()]
 
