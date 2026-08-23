@@ -75,9 +75,11 @@ config["model"] = {
     "default": chosen_model
 }
 
-# Auxiliary model routing
+# Auxiliary model routing: explicitly set provider to openrouter to prevent Nous timeouts
 if "auxiliary" not in config: config["auxiliary"] = {}
+config["auxiliary"]["provider"] = "openrouter"
 config["auxiliary"]["openrouter_model"] = os.environ.get("LLM_MODEL_CRONS") or "deepseek/deepseek-chat"
+config["auxiliary"]["free_only"] = False
 
 # Plugins
 if "plugins" not in config: config["plugins"] = {}
