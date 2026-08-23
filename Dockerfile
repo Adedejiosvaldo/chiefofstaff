@@ -13,13 +13,19 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Python requirements for GCal, Todoist, Buffer, and Scrapers inside the virtualenv
-RUN /opt/hermes/.venv/bin/python3 -m pip install --no-cache-dir \
+# Install Python requirements for GCal, Todoist, Buffer, and Scrapers globally
+RUN pip3 install --no-cache-dir \
     requests \
     google-api-python-client \
     google-auth-httplib2 \
     google-auth-oauthlib \
     pyyaml
+
+# Also install into Hermes virtualenv if pip/ensurepip is available
+RUN if [ -d "/opt/hermes/.venv" ]; then \
+        (/opt/hermes/.venv/bin/python3 -m ensurepip || true) && \
+        (/opt/hermes/.venv/bin/pip install --no-cache-dir requests google-api-python-client google-auth-httplib2 google-auth-oauthlib pyyaml || true); \
+    fi
 
 # Pre-install WhatsApp bridge dependencies to prevent startup timeouts
 RUN if [ -d "/opt/hermes/scripts/whatsapp-bridge" ]; then cd /opt/hermes/scripts/whatsapp-bridge && npm install; fi
