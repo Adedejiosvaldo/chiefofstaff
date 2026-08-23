@@ -236,7 +236,11 @@ def register(ctx):
     ctx.register_tool(
         name="get_gamification_status",
         toolset="oya-gamification",
-        schema={"type": "object", "properties": {}},
+        schema={
+            "type": "object",
+            "description": "Returns the user's gamification stats card: current level, XP progress bar, active habit streaks, streak freezes, and hearts remaining.",
+            "properties": {}
+        },
         handler=lambda args, **kwargs: get_gamification_status_tool()
     )
 
@@ -245,6 +249,7 @@ def register(ctx):
         toolset="oya-gamification",
         schema={
             "type": "object",
+            "description": "Records the completion outcome (done, deferred, excused, missed) of a task or habit, rolls XP dice, and updates streaks/hearts.",
             "properties": {
                 "habit_name": {"type": "string", "description": "The name of the habit or task being resolved."},
                 "outcome": {"type": "string", "enum": ["done", "deferred", "excused", "missed"], "description": "The resolution route."},
@@ -264,7 +269,11 @@ def register(ctx):
     ctx.register_tool(
         name="get_daily_trivia",
         toolset="oya-gamification",
-        schema={"type": "object", "properties": {}},
+        schema={
+            "type": "object",
+            "description": "Generates an on-the-fly, unpredictable, brutally hard technical challenge in AI, DevOps, or Distributed Systems to recover lost hearts.",
+            "properties": {}
+        },
         handler=lambda args, **kwargs: get_daily_trivia_tool()
     )
 
@@ -273,6 +282,7 @@ def register(ctx):
         toolset="oya-gamification",
         schema={
             "type": "object",
+            "description": "Evaluates the user's trivia response and gives a savage Staff Engineer Rating and deep architectural breakdown.",
             "properties": {
                 "challenge_id": {"type": "integer", "description": "The ID of the trivia challenge answered."},
                 "answer": {"type": "string", "description": "The user answer (e.g. 'A', 'B', 'C', 'D')."}

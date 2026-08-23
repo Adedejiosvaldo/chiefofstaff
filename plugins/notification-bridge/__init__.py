@@ -71,7 +71,11 @@ def register(ctx):
     ctx.register_tool(
         name="fetch_pending_notifications",
         toolset="notification-bridge",
-        schema={"type": "object", "properties": {}},
+        schema={
+            "type": "object",
+            "description": "Checks the database queue for pending outbound notifications and cron reminders.",
+            "properties": {}
+        },
         handler=lambda args, **kwargs: _fetch_and_mark_notifications()
     )
 
@@ -80,6 +84,7 @@ def register(ctx):
         toolset="notification-bridge",
         schema={
             "type": "object",
+            "description": "Queues a reminder or notification prompt in the database for background delivery.",
             "properties": {
                 "prompt": {
                     "type": "string",
@@ -96,6 +101,7 @@ def register(ctx):
         toolset="notification-bridge",
         schema={
             "type": "object",
+            "description": "Retrieves recent user telemetry and habit events for weekly routine analysis.",
             "properties": {
                 "days": {
                     "type": "integer",

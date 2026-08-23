@@ -11,7 +11,11 @@ def register(ctx):
     ctx.register_tool(
         name="run_opportunity_crawler",
         toolset="opportunity-radar",
-        schema={"type": "object", "properties": {}},
+        schema={
+            "type": "object",
+            "description": "Crawls remote sources for international DevOps, SRE, and Cloud jobs offering relocation / visa sponsorship.",
+            "properties": {}
+        },
         handler=lambda args, **kwargs: core_opportunity.trigger_crawlers()
     )
 
@@ -20,6 +24,7 @@ def register(ctx):
         toolset="opportunity-radar",
         schema={
             "type": "object",
+            "description": "Fetches cached unread international DevOps jobs and relocation opportunities from SQLite.",
             "properties": {
                 "limit": {
                     "type": "integer",

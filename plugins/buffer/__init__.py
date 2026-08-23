@@ -13,20 +13,21 @@ def register(ctx):
         toolset="buffer",
         schema={
             "type": "object",
+            "description": "Queues an approved post draft directly to the user's Buffer queue for LinkedIn.",
             "properties": {
                 "text": {
                     "type": "string",
-                    "description": "The drafted LinkedIn post content to queue."
+                    "description": "The formatted content of the LinkedIn post to publish."
                 },
                 "schedule_time": {
                     "type": "string",
-                    "description": "Optional scheduled ISO time."
+                    "description": "Optional ISO/formatted time to schedule the post."
                 }
             },
             "required": ["text"]
         },
         handler=lambda args, **kwargs: core_buffer.add_to_buffer(
-            text=args["text"],
-            schedule_time=args.get("schedule_time")
+            args["text"],
+            args.get("schedule_time")
         )
     )

@@ -13,6 +13,7 @@ def register(ctx):
         toolset="todoist",
         schema={
             "type": "object",
+            "description": "Fetch active, today, and overdue tasks from Todoist task board.",
             "properties": {
                 "filter_query": {
                     "type": "string",
@@ -28,6 +29,7 @@ def register(ctx):
         toolset="todoist",
         schema={
             "type": "object",
+            "description": "Create a new task on the Todoist task board.",
             "properties": {
                 "content": {
                     "type": "string",
@@ -48,6 +50,7 @@ def register(ctx):
         toolset="todoist",
         schema={
             "type": "object",
+            "description": "Mark a Todoist task as completed by task ID.",
             "properties": {
                 "task_id": {
                     "type": "string",

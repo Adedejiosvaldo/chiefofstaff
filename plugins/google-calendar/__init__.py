@@ -13,6 +13,7 @@ def register(ctx):
         toolset="google-calendar",
         schema={
             "type": "object",
+            "description": "Retrieve scheduled calendar events and meetings for a given date (defaults to today).",
             "properties": {
                 "date_str": {
                     "type": "string",
@@ -28,10 +29,11 @@ def register(ctx):
         toolset="google-calendar",
         schema={
             "type": "object",
+            "description": "Schedule a new event or deep work focus block on Google Calendar.",
             "properties": {
                 "summary": {
                     "type": "string",
-                    "description": "Event title."
+                    "description": "Event title or purpose."
                 },
                 "start_time_str": {
                     "type": "string",

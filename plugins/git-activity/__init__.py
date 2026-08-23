@@ -13,10 +13,11 @@ def register(ctx):
         toolset="git-activity",
         schema={
             "type": "object",
+            "description": "Pulls recent git commit history and push events across local repositories and GitHub for the user.",
             "properties": {
                 "repo_paths_str": {
                     "type": "string",
-                    "description": "Comma-separated absolute paths to git repositories. If empty, checks environment variables."
+                    "description": "Comma-separated absolute paths to git repositories. If empty, auto-discovers repos and checks GitHub."
                 },
                 "since_hours": {
                     "type": "integer",
