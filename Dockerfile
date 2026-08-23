@@ -14,7 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     && rm -rf /var/lib/apt/lists/*
 
 # Install Python requirements for GCal, Todoist, Buffer, and Scrapers globally
-RUN pip3 install --no-cache-dir \
+RUN pip3 install --no-cache-dir --break-system-packages \
     requests \
     google-api-python-client \
     google-auth-httplib2 \
