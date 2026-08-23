@@ -121,27 +121,74 @@ def create_task(content: str, due_string: str = None) -> str:
         return f"Error creating Todoist task: {str(e)}"
 
 
-def complete_task(task_id: str) -> str:
+def complete_task(task_id_or_name: str) -> str:
     """
-    Marks a Todoist task as completed via API v1.
+    Marks a Todoist task as completed via API v1 by ID or matching task name/keyword.
 
     Args:
-        task_id (str): The Todoist alphanumeric ID.
+        task_id_or_name (str): The Todoist alphanumeric ID OR task name/keywords.
     """
     headers = get_todoist_headers()
     if not headers:
-        return f"✅ **[MOCK SUCCESS] Completed Todoist Task**: Marked task ID **'{task_id}'** as completed."
+        return f"✅ **[MOCK SUCCESS] Completed Todoist Task**: Marked '{task_id_or_name}' as completed."
 
-    url = f"https://api.todoist.com/api/v1/tasks/{task_id}/close"
+    target_id = task_id_or_name.strip()
+    matched_title = target_id
 
     try:
+        url_list = "https://api.todoist.com/api/v1/tasks"
         if REQUESTS_AVAILABLE:
-            response = requests.post(url, headers=headers, timeout=10)
+            resp = requests.get(url_list, headers=headers, timeout=10)
+            resp.raise_for_status()
+            data = resp.json()
+        else:
+            req = urllib.request.Request(url_list, headers=headers)
+            with urllib.request.urlopen(req, timeout=10) as r:
+                data = json.loads(r.read().decode("utf-8"))
+        
+        tasks = data.get("results", data) if isinstance(data, dict) else data
+
+        # 1. Check exact ID match
+        found_id = None
+        for t in tasks:
+            if t.get("id") == target_id:
+                found_id = t.get("id")
+                matched_title = t.get("content")
+                break
+
+        # 2. Check substring in content
+        if not found_id:
+            for t in tasks:
+                content = t.get("content", "").lower()
+                if target_id.lower() in content or content in target_id.lower():
+                    found_id = t.get("id")
+                    matched_title = t.get("content")
+                    break
+
+        # 3. Check keyword token overlap
+        if not found_id:
+            target_words = set(target_id.lower().split())
+            best_overlap = 0
+            for t in tasks:
+                words = set(t.get("content", "").lower().split())
+                overlap = len(target_words & words)
+                if overlap > best_overlap:
+                    best_overlap = overlap
+                    found_id = t.get("id")
+                    matched_title = t.get("content")
+
+        if found_id:
+            target_id = found_id
+
+        url_close = f"https://api.todoist.com/api/v1/tasks/{target_id}/close"
+        if REQUESTS_AVAILABLE:
+            response = requests.post(url_close, headers=headers, timeout=10)
             response.raise_for_status()
         else:
-            req = urllib.request.Request(url, data=b"", headers=headers, method="POST")
+            req = urllib.request.Request(url_close, data=b"", headers=headers, method="POST")
             with urllib.request.urlopen(req, timeout=10) as resp:
                 pass
-        return f"✅ **Todoist Task Completed**! Successfully checked off task {task_id}."
+
+        return f"✅ **Todoist Task Completed**: '{matched_title}' has been checked off in Todoist!"
     except Exception as e:
-        return f"Error completing Todoist task: {str(e)}"
+        return f"Error completing Todoist task '{task_id_or_name}': {str(e)}"

@@ -50,14 +50,14 @@ def register(ctx):
         toolset="todoist",
         schema={
             "type": "object",
-            "description": "Mark a Todoist task as completed by task ID.",
+            "description": "Mark a Todoist task as completed by task ID or matching task name/keywords.",
             "properties": {
                 "task_id": {
                     "type": "string",
-                    "description": "The Todoist task ID."
+                    "description": "The Todoist task ID or task title/keyword (e.g. 'livestreaming', 'prembly', '6hJRfFhWP3hVFcR7')."
                 }
             },
             "required": ["task_id"]
         },
-        handler=lambda args, **kwargs: core_todoist.complete_task(args["task_id"])
+        handler=lambda args, **kwargs: core_todoist.complete_task(args.get("task_id") or args.get("task_name") or args.get("content") or "")
     )
